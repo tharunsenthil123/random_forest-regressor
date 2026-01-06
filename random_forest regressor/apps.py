@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
@@ -13,21 +11,28 @@ st.title("🏠 Ames Housing Price Prediction")
 st.write("Random Forest Regressor")
 
 # -----------------------------
-# Load dataset
+# 1️⃣ Widget MUST be outside cache
+# -----------------------------
+uploaded_file = st.file_uploader("Upload AmesHousing.csv", type=["csv"])
+
+if uploaded_file is None:
+    st.info("Please upload AmesHousing.csv to continue")
+    st.stop()
+
+# -----------------------------
+# 2️⃣ Cache ONLY pure function
 # -----------------------------
 @st.cache_data
-def load_data():
-    uploaded_file = st.file_uploader("Upload AmesHousing.csv", type=["csv"])
-    return pd.read_csv(uploaded_file)
+def load_data(file):
+    return pd.read_csv(file)
 
-
-df = load_data()
+df = load_data(uploaded_file)
 
 st.subheader("Dataset Preview")
 st.dataframe(df.head())
 
 # -----------------------------
-# Select features (IMPORTANT numeric ones)
+# Features & Target
 # -----------------------------
 FEATURES = [
     "Overall Qual",
@@ -36,7 +41,6 @@ FEATURES = [
     "Total Bsmt SF",
     "Year Built"
 ]
-
 TARGET = "SalePrice"
 
 X = df[FEATURES]
@@ -54,10 +58,9 @@ X_train, X_test, y_train, y_test = train_test_split(
 # -----------------------------
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
 
 # -----------------------------
-# Train Random Forest
+# Train model
 # -----------------------------
 model = RandomForestRegressor(
     n_estimators=200,
