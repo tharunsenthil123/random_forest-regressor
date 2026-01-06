@@ -17,7 +17,9 @@ st.write("Random Forest Regressor")
 # -----------------------------
 @st.cache_data
 def load_data():
-    return pd.read_csv("AmesHousing.csv")
+    uploaded_file = st.file_uploader("Upload AmesHousing.csv", type=["csv"])
+    return pd.read_csv(uploaded_file)
+
 
 df = load_data()
 
